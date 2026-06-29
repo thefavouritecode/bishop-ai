@@ -65,8 +65,9 @@ html, body, [data-testid="stAppViewContainer"] {
     color: var(--text-primary) !important;
 }
 
-/* ── Hide Streamlit chrome ── */
-#MainMenu, footer, header,
+/* ── Hide Streamlit chrome (keep sidebar toggle) ── */
+#MainMenu,
+footer,
 [data-testid="stToolbar"],
 [data-testid="stDecoration"],
 [data-testid="stStatusWidget"],
@@ -75,8 +76,23 @@ html, body, [data-testid="stAppViewContainer"] {
 [title="Fork on GitHub"],
 a[href*="streamlit.io"],
 .viewerBadge_container__1QSob,
-.styles_viewerBadge__1yB5_,
-[data-testid="stHamburgerButton"] { display: none !important; }
+.styles_viewerBadge__1yB5_ { display: none !important; }
+
+/* ── Style the sidebar collapse toggle button ── */
+[data-testid="stSidebarCollapsedControl"] button,
+[data-testid="stSidebarCollapseButton"] button,
+[data-testid="collapsedControl"] button {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+    color: var(--gold-primary) !important;
+}
+[data-testid="stSidebarCollapsedControl"] button:hover,
+[data-testid="stSidebarCollapseButton"] button:hover,
+[data-testid="collapsedControl"] button:hover {
+    border-color: var(--gold-primary) !important;
+    background: rgba(232,192,106,0.08) !important;
+}
 
 /* ── Main container ── */
 [data-testid="stMain"] {
