@@ -9,3 +9,4 @@ pinecone-client
 pypdf
 sentence-transformers
 streamlit-pdf-viewer
+requests
