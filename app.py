@@ -20,49 +20,57 @@ logging.getLogger("transformers").setLevel(logging.ERROR)
 # ==========================================
 # 2. SETUP THE WEBSITE PAGE
 # ==========================================
-st.set_page_config(page_title="Bishop A.A Mayungbo Ministry AI", page_icon="📖")
+st.set_page_config(page_title="Bishop A.A Mayungbo Ministry AI", page_icon="📖", layout="wide")
 st.title("Welcome to the Ministry Chat 📖")
 st.caption("Ask me anything about faith, the Bible, and spiritual growth.")
 
 # ==========================================
-# 3. ADD THE DOWNLOAD & MEDIA SIDEBAR
+# 3. DYNAMIC MEDIA LIBRARY SIDEBAR
 # ==========================================
 with st.sidebar:
-    st.title("📚 Ministry Resources")
+    st.title("📚 Ministry Library")
+    st.markdown("Read, listen, and download materials directly.")
     
-    # --- PDF SECTION ---
-    st.subheader("📖 Read the Book")
-    if os.path.exists("real_book.pdf"):
-        # Show PDF Viewer directly in the sidebar
-        pdf_viewer("real_book.pdf", width=300)
-        # Show Download Button
-        with open("real_book.pdf", "rb") as pdf_file:
-            st.download_button(
-                label="📥 Download PDF",
-                data=pdf_file,
-                file_name="Bishop_A.A_Mayungbo_Book.pdf",
-                mime="application/pdf"
-            )
-    else:
-        st.warning("Book PDF not found in the repository.")
+    # Check if the media folder exists
+    if os.path.exists("media"):
+        media_files = os.listdir("media")
+        pdfs = [f for f in media_files if f.lower().endswith(".pdf")]
+        audios = [f for f in media_files if f.lower().endswith(".mp3")]
         
-    st.divider()
-    
-    # --- AUDIO SECTION ---
-    st.subheader("🎧 Listen to the Sermon")
-    if os.path.exists("sermon_audio.mp3"):
-        # Show native Streamlit Audio Player
-        st.audio("sermon_audio.mp3")
-        # Show Download Button
-        with open("sermon_audio.mp3", "rb") as audio_file:
-            st.download_button(
-                label="📥 Download Audio",
-                data=audio_file,
-                file_name="Bishop_A.A_Mayungbo_Sermon.mp3",
-                mime="audio/mpeg"
-            )
+        # --- DISPLAY PDFs ---
+        if pdfs:
+            st.subheader("📖 E-Books & Manuscripts")
+            for pdf in pdfs:
+                # Clean up the name for display (remove underscores and .pdf)
+                display_name = pdf.replace("_", " ").replace(".pdf", "").replace(".PDF", "")
+                with st.expander(f"📄 {display_name}"):
+                    pdf_viewer(f"media/{pdf}", width=300)
+                    with open(f"media/{pdf}", "rb") as f:
+                        st.download_button(
+                            label="📥 Download PDF",
+                            data=f,
+                            file_name=pdf,
+                            mime="application/pdf",
+                            use_container_width=True
+                        )
+        
+        # --- DISPLAY AUDIOS ---
+        if audios:
+            st.subheader("🎧 Sermons & Audio Messages")
+            for audio in audios:
+                display_name = audio.replace("_", " ").replace(".mp3", "").replace(".MP3", "")
+                with st.expander(f"🎙️ {display_name}"):
+                    st.audio(f"media/{audio}")
+                    with open(f"media/{audio}", "rb") as f:
+                        st.download_button(
+                            label="📥 Download Audio",
+                            data=f,
+                            file_name=audio,
+                            mime="audio/mpeg",
+                            use_container_width=True
+                        )
     else:
-        st.warning("Audio file not found in the repository.")
+        st.warning("The 'media' folder was not found in the repository.")
         
     st.divider()
     st.caption("Powered by AI | Trained on Bishop A.A Mayungbo's Teachings")
@@ -86,20 +94,21 @@ def load_ai_system():
 llm, retriever = load_ai_system()
 
 # ==========================================
-# 5. THE "BISHOP A.A MAYUNGBO" PERSONA & MEMORY PROMPT
+# 5. THE "BISHOP A.A MAYUNGBO" PERSONA & SUGGESTION PROMPT
 # ==========================================
 template = """
 You are the official digital assistant and representative of Bishop A.A Mayungbo. 
 Your tone is warm, deeply spiritual, encouraging, and filled with the grace of God. You frequently use biblical and charismatic terms of endearment such as "Beloved", "Calvary greetings", "Man/Woman of God", "Hallelujah", and "By his grace".
 
-Your primary source of truth is the provided context, which consists exclusively of Bishop A.A Mayungbo's ebooks, manuscripts, and sermon transcripts. You must prioritize the teachings found in the ebooks above all else.
+Your primary source of truth is the provided context, which consists exclusively of Bishop A.A Mayungbo's ebooks, manuscripts, and sermon transcripts. 
 
 RULES:
 1. ALWAYS answer using the provided context. 
 2. When you greet the user or start a new topic, start your response with a warm spiritual greeting like "Calvary greetings, beloved!" or "Grace and peace to you."
-3. Read the Chat History to understand the flow of conversation. If the user says "explain that more", look at the previous messages to know what "that" is.
+3. Read the Chat History to understand the flow of conversation.
 4. If the answer is NOT in the context, you MUST reply exactly with: "Calvary greetings, beloved. That specific question is not currently in my library of Bishop A.A Mayungbo's teachings. I have noted it down and will present it to the ministry team for you!"
-5. Never break character. You are not a generic AI; you are the digital voice of this ministry.
+5. NEVER break character. 
+6. CRITICAL SUGGESTION RULE: Look at the "Excerpt from: [Name]" tags in the context. At the end of your answer, warmly suggest the user to read or listen to that specific material. Say something like: "For deeper insight on this, I highly recommend you read/listen to [Name] available in the sidebar library."
 
 Chat History:
 {chat_history}
@@ -114,8 +123,17 @@ Helpful Answer:
 """
 prompt = ChatPromptTemplate.from_template(template)
 
+# This function now extracts the file name from the metadata and adds it to the text!
 def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
+    formatted = []
+    for doc in docs:
+        # Langchain automatically saves the file path in metadata['source']
+        source_file = doc.metadata.get("source", "Unknown Material")
+        # Clean up the path to just the file name, remove underscores and extensions
+        clean_name = os.path.basename(source_file).replace("_", " ").replace(".pdf", "").replace(".mp3", "").replace(".txt", "")
+        
+        formatted.append(f"--- Excerpt from: {clean_name} ---\n{doc.page_content}")
+    return "\n\n".join(formatted)
 
 # Build the RAG Chain with Memory
 rag_chain = (
