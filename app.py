@@ -3,6 +3,7 @@ import logging
 import streamlit as st
 from dotenv import load_dotenv
 from operator import itemgetter
+from streamlit_pdf_viewer import pdf_viewer
 from langchain_groq import ChatGroq
 from langchain_pinecone import PineconeVectorStore
 from langchain_community.embeddings import HuggingFaceEmbeddings
@@ -24,23 +25,44 @@ st.title("Welcome to the Ministry Chat 📖")
 st.caption("Ask me anything about faith, the Bible, and spiritual growth.")
 
 # ==========================================
-# 3. ADD THE DOWNLOAD SIDEBAR
+# 3. ADD THE DOWNLOAD & MEDIA SIDEBAR
 # ==========================================
 with st.sidebar:
     st.title("📚 Ministry Resources")
-    st.markdown("Download the materials directly:")
     
-    try:
+    # --- PDF SECTION ---
+    st.subheader("📖 Read the Book")
+    if os.path.exists("real_book.pdf"):
+        # Show PDF Viewer directly in the sidebar
+        pdf_viewer("real_book.pdf", width=300)
+        # Show Download Button
         with open("real_book.pdf", "rb") as pdf_file:
-            st.download_button(label="📥 Download the Book (PDF)", data=pdf_file, file_name="Bishop_A.A_Mayungbo_Book.pdf", mime="application/pdf")
-    except FileNotFoundError:
-        st.warning("Book PDF not found.")
-
-    try:
+            st.download_button(
+                label="📥 Download PDF",
+                data=pdf_file,
+                file_name="Bishop_A.A_Mayungbo_Book.pdf",
+                mime="application/pdf"
+            )
+    else:
+        st.warning("Book PDF not found in the repository.")
+        
+    st.divider()
+    
+    # --- AUDIO SECTION ---
+    st.subheader("🎧 Listen to the Sermon")
+    if os.path.exists("sermon_audio.mp3"):
+        # Show native Streamlit Audio Player
+        st.audio("sermon_audio.mp3")
+        # Show Download Button
         with open("sermon_audio.mp3", "rb") as audio_file:
-            st.download_button(label="🎧 Listen / Download Sermon (MP3)", data=audio_file, file_name="Bishop_A.A_Mayungbo_Sermon.mp3", mime="audio/mpeg")
-    except FileNotFoundError:
-        st.warning("Audio file not found.")
+            st.download_button(
+                label="📥 Download Audio",
+                data=audio_file,
+                file_name="Bishop_A.A_Mayungbo_Sermon.mp3",
+                mime="audio/mpeg"
+            )
+    else:
+        st.warning("Audio file not found in the repository.")
         
     st.divider()
     st.caption("Powered by AI | Trained on Bishop A.A Mayungbo's Teachings")
@@ -95,7 +117,7 @@ prompt = ChatPromptTemplate.from_template(template)
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
-# Build the RAG Chain with Memory using itemgetter to avoid Streamlit thread issues
+# Build the RAG Chain with Memory
 rag_chain = (
     {
         "context": itemgetter("question") | retriever | format_docs,
@@ -110,41 +132,31 @@ rag_chain = (
 # ==========================================
 # 6. BUILD THE CHAT INTERFACE
 # ==========================================
-# Initialize chat history in Streamlit's "session state"
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display chat messages from history on the screen
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# React to user input
 if user_question := st.chat_input("What is your question today?"):
-    # 1. Display user question
     with st.chat_message("user"):
         st.markdown(user_question)
-    # 2. Add user question to history
     st.session_state.messages.append({"role": "user", "content": user_question})
 
-    # 3. Generate AI answer
     with st.chat_message("assistant"):
         with st.spinner("Searching the teachings..."):
-            # Format the chat history safely in the main Streamlit thread
             history_str = ""
-            # We exclude the very last message because that is the current question being asked
             for msg in st.session_state.messages[:-1]:
                 if msg["role"] == "user":
                     history_str += f"User: {msg['content']}\n"
                 else:
                     history_str += f"Assistant: {msg['content']}\n"
             
-            # Pass the question and history as a dictionary to the chain
             response = rag_chain.invoke({
                 "question": user_question,
                 "chat_history": history_str
             })
             st.markdown(response)
     
-    # 4. Add AI answer to history
     st.session_state.messages.append({"role": "assistant", "content": response})
