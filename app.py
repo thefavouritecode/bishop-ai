@@ -12,138 +12,151 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 # ==========================================
-# 1. PAGE CONFIG & CUSTOM CSS (THE BEAUTY)
+# 1. PAGE CONFIG & PREMIUM CSS
 # ==========================================
 st.set_page_config(
     page_title="Bishop A.A Mayungbo Ministry AI", 
     page_icon="📖", 
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded" # Forces sidebar to stay open
 )
 
-# --- THE PREMIUM CSS ---
-# This CSS handles: Wine Theme, Glowing Effects, Hiding Icons, Custom Chat Bubbles
+# --- THE PREMIUM CREAM & WINE CSS ---
 st.markdown("""
 <style>
-    /* --- GLOBAL VARIABLES (WINE THEME) --- */
+    /* --- GLOBAL VARIABLES (ELEGANT CREAM & WINE) --- */
     :root {
-        --wine-color: #800020;
-        --wine-light: #a33250;
-        --wine-glow: rgba(128, 0, 32, 0.4);
-        --bg-color: #ffffff;
-        --text-color: #333333;
-        --card-bg: #f9f9f9;
+        --wine-color: #722F37; /* Rich, elegant wine */
+        --wine-light: #9D4A54;
+        --wine-glow: rgba(114, 47, 55, 0.25);
+        --bg-color: #FCFAF8; /* Soft, warm cream (not stark white) */
+        --text-color: #2C2C2C; /* Soft black for high readability */
+        --card-bg: #FFFFFF; /* Pure white for cards to pop against cream */
+        --sidebar-bg: #FDF8F5; /* Very subtle warm tint for sidebar */
     }
     
     /* Dark Mode Variables */
     [data-theme="dark"] {
-        --wine-color: #ff4d6d;
-        --wine-light: #ff8fa3;
-        --wine-glow: rgba(255, 77, 109, 0.4);
-        --bg-color: #121212;
-        --text-color: #e0e0e0;
-        --card-bg: #1e1e1e;
+        --wine-color: #D9534F; /* Brighter wine for dark mode visibility */
+        --wine-light: #E27278;
+        --wine-glow: rgba(217, 83, 79, 0.3);
+        --bg-color: #181818; /* Deep charcoal */
+        --text-color: #EAEAEA;
+        --card-bg: #252525;
+        --sidebar-bg: #1E1E1E;
     }
 
-    /* --- HIDE UNNECESSARY ELEMENTS --- */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    .stDeployButton {visibility: hidden;}
-    header {visibility: hidden;} /* Hides the top bar clutter */
+    /* --- HIDE UNNECESSARY CLUTTER --- */
+    #MainMenu, footer, .stDeployButton, header {visibility: hidden;}
     
     /* --- MAIN BACKGROUND --- */
     .stApp {
         background-color: var(--bg-color);
         color: var(--text-color);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* --- SIDEBAR STYLING --- */
+    /* --- SIDEBAR STYLING (HIGHLY VISIBLE & ELEGANT) --- */
     [data-testid="stSidebar"] {
-        background-color: var(--card-bg);
-        border-right: 1px solid var(--wine-color);
-        box-shadow: 2px 0 10px var(--wine-glow);
+        background-color: var(--sidebar-bg);
+        border-right: 2px solid var(--wine-color);
+        box-shadow: 4px 0 20px var(--wine-glow);
     }
-    
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] label {
+        color: var(--wine-color) !important;
+        font-weight: 600;
+    }
+
     /* --- SEARCH BAR STYLING --- */
     .stTextInput > div > div > input {
         border: 2px solid var(--wine-color);
-        border-radius: 10px;
+        border-radius: 12px;
+        background-color: var(--card-bg);
         color: var(--text-color);
+        box-shadow: 0 0 10px rgba(114, 47, 55, 0.1);
     }
-    
+
     /* --- CHAT INPUT STYLING (GLOWING) --- */
     .stChatInput > div {
         border: 2px solid var(--wine-color) !important;
-        box-shadow: 0 0 15px var(--wine-glow) !important;
-        border-radius: 20px !important;
+        box-shadow: 0 0 20px var(--wine-glow) !important;
+        border-radius: 25px !important;
+        background-color: var(--card-bg) !important;
     }
 
-    /* --- CHAT BUBBLES --- */
-    /* User Bubble */
-    .stChatMessage[data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: var(--wine-color);
-        color: white;
-        border-radius: 15px 15px 0 15px;
-        box-shadow: 0 4px 15px var(--wine-glow);
-    }
-    /* AI Bubble */
-    .stChatMessage[data-testid="stChatMessage"]:nth-child(even) {
+    /* --- CHAT BUBBLES (PERFECTLY ALIGNED & VISIBLE) --- */
+    /* Streamlit automatically aligns User to Right, Assistant to Left */
+    .stChatMessage[data-testid="stChatMessage"] {
         background-color: var(--card-bg);
         color: var(--text-color);
-        border: 1px solid var(--wine-color);
-        border-radius: 15px 15px 15px 0;
+        border: 1px solid rgba(114, 47, 55, 0.15);
+        border-radius: 22px;
+        padding: 18px 24px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+        margin-bottom: 15px;
+        max-width: 85%;
+        font-size: 1.05em;
+        line-height: 1.6;
     }
     
+    /* Make the AI avatar look premium */
+    .stChatMessage[data-testid="stChatMessage"] .st-emotion-cache-1y4r31y {
+        background-color: var(--wine-color) !important;
+        color: white !important;
+        box-shadow: 0 0 10px var(--wine-glow);
+    }
+
     /* --- WELCOME CARD (CALVARY GREETINGS) --- */
     .welcome-card {
         text-align: center;
-        padding: 50px;
+        padding: 60px 40px;
         background: linear-gradient(135deg, var(--wine-color), var(--wine-light));
         color: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px var(--wine-glow);
-        margin-top: 50px;
-        animation: fadeIn 1s ease-in;
+        border-radius: 30px;
+        box-shadow: 0 20px 40px var(--wine-glow);
+        margin: 50px auto;
+        max-width: 650px;
+        animation: fadeIn 1.2s ease-in;
     }
     .welcome-card h1 {
         font-size: 3em;
-        margin-bottom: 10px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        margin-bottom: 15px;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+        font-weight: 700;
+        letter-spacing: 1px;
     }
     .welcome-card p {
-        font-size: 1.2em;
-        opacity: 0.9;
+        font-size: 1.25em;
+        opacity: 0.95;
+        line-height: 1.6;
     }
     
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* --- MEDIA CARDS --- */
-    .media-card {
-        background-color: var(--bg-color);
-        border: 1px solid var(--wine-color);
-        border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    
-    /* --- BUTTONS --- */
+    /* --- BUTTONS (GLOWING WINE) --- */
     .stButton > button {
         background-color: var(--wine-color);
-        color: white;
+        color: white !important;
         border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        transition: all 0.3s;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(114, 47, 55, 0.2);
     }
     .stButton > button:hover {
         background-color: var(--wine-light);
-        box-shadow: 0 0 10px var(--wine-glow);
+        box-shadow: 0 0 20px var(--wine-glow);
         transform: translateY(-2px);
+    }
+    
+    /* --- MEDIA CARDS --- */
+    .stExpander {
+        border: 1px solid rgba(114, 47, 55, 0.2) !important;
+        border-radius: 12px !important;
+        background-color: var(--card-bg) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -169,16 +182,13 @@ with st.sidebar:
             pdfs = [f for f in media_files if f.lower().endswith(".pdf")]
             audios = [f for f in media_files if f.lower().endswith(".mp3")]
         
-        # --- DISPLAY PDFs (WITH INSTANT DOWNLOAD) ---
+        # --- DISPLAY PDFs ---
         if pdfs:
             st.subheader(f"📖 E-Books ({len(pdfs)})")
             for pdf in pdfs:
                 display_name = pdf.replace("_", " ").replace(".pdf", "")
-                
-                # Create a clean card for each book
                 with st.container():
                     st.markdown(f"**📄 {display_name}**")
-                    # Download Button RIGHT HERE (Top of the card)
                     with open(f"media/{pdf}", "rb") as f:
                         st.download_button(
                             label="⬇️ Download PDF",
@@ -188,20 +198,17 @@ with st.sidebar:
                             use_container_width=True,
                             key=f"dl_{pdf}"
                         )
-                    # PDF Viewer (Collapsible to save space)
                     with st.expander("👁️ Preview Book"):
                         pdf_viewer(f"media/{pdf}", width=280)
                     st.markdown("---")
         
-        # --- DISPLAY AUDIOS (WITH INSTANT DOWNLOAD) ---
+        # --- DISPLAY AUDIOS ---
         if audios:
             st.subheader(f"🎧 Sermons ({len(audios)})")
             for audio in audios:
                 display_name = audio.replace("_", " ").replace(".mp3", "")
-                
                 with st.container():
                     st.markdown(f"**🎙️ {display_name}**")
-                    # Download Button RIGHT HERE
                     with open(f"media/{audio}", "rb") as f:
                         st.download_button(
                             label="⬇️ Download Audio",
@@ -211,7 +218,6 @@ with st.sidebar:
                             use_container_width=True,
                             key=f"dl_{audio}"
                         )
-                    # Audio Player
                     st.audio(f"media/{audio}")
                     st.markdown("---")
     else:
@@ -229,7 +235,6 @@ with st.sidebar:
         admin_a = st.text_area("Bishop's Answer:")
         if st.button("💾 Teach AI"):
             if admin_q and admin_a:
-                # (Logic to save to Pinecone would go here, simplified for UI demo)
                 st.success("Saved to memory!")
             else:
                 st.warning("Fill both fields.")
@@ -239,14 +244,10 @@ with st.sidebar:
 # ==========================================
 # 3. MAIN CHAT AREA (DYNAMIC GREETING)
 # ==========================================
-
-# Initialize Chat History
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # --- CONDITIONAL WELCOME SCREEN ---
-# If no messages exist, show the beautiful "Calvary Greetings" card.
-# If messages exist, the chat interface takes over.
 if len(st.session_state.messages) == 0:
     st.markdown("""
     <div class="welcome-card">
@@ -255,33 +256,24 @@ if len(st.session_state.messages) == 0:
         <p>Ask me anything about faith, the Bible, or spiritual growth.</p>
     </div>
     """, unsafe_allow_html=True)
-    
-    # Add a subtle hint to start chatting
-    st.markdown("<p style='text-align: center; color: gray;'>👇 Start typing your question below...</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: gray; font-size: 1.1em;'>👇 Start typing your question below...</p>", unsafe_allow_html=True)
 
 # --- CHAT INTERFACE ---
-# We always render the chat input, but the history only shows if messages exist.
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
 if prompt := st.chat_input("Ask a question..."):
-    # Add user message
     st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    # Display user message
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate AI Response
     with st.chat_message("assistant"):
         with st.spinner("Searching the scriptures..."):
-            # (Placeholder for AI Logic - Connect your existing RAG chain here)
-            # For this UI demo, I'm simulating a response. 
-            # REPLACE THIS BLOCK WITH YOUR ACTUAL RAG CHAIN LOGIC FROM PREVIOUS STEPS.
-            response = "Calvary greetings, beloved! This is a UI demo. Please ensure your `rag_chain` logic is connected here to get real answers."
+            # --- PLACEHOLDER: CONNECT YOUR RAG CHAIN HERE ---
+            # response = rag_chain.invoke({"question": prompt, "chat_history": history_str})
+            response = "Calvary greetings, beloved! This is the new premium UI. Please ensure your `rag_chain` logic is connected in the code to get real answers from the Bishop's library."
             
-            # --- TELEGRAM ALERT LOGIC (Keep your existing logic here) ---
             # if "not currently in my library" in response: send_telegram_alert(prompt)
             
             st.markdown(response)
