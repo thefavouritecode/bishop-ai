@@ -160,26 +160,9 @@ html, body, [data-testid="stAppViewContainer"] {
    MAIN CHAT AREA (PERFECTLY ALIGNED)
 ════════════════════════════════════════ */
 .main .block-container {
-  padding: 2rem 2rem 5rem 2rem !important; /* Added padding so it's not edge-to-edge */
+  padding: 2rem 2rem 5rem 2rem !important; 
   max-width: 1000px !important;
   margin: 0 auto !important;
-}
-
-/* Top Bar */
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--sep);
-  margin-bottom: 2rem;
-}
-.tb-cross { font-size: 1.5rem; filter: drop-shadow(0 0 8px rgba(232,192,106,0.6)); }
-.tb-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--gold-lt);
 }
 
 /* Welcome Screen */
@@ -200,26 +183,29 @@ html, body, [data-testid="stAppViewContainer"] {
 .wr { width: 60px; height: 2px; margin: 1rem auto; background: linear-gradient(90deg,transparent,var(--gold),transparent); }
 .ws { font-size: 1rem; color: var(--txt2); line-height: 1.6; }
 
-/* ── CHAT MESSAGES (FIXED ALIGNMENT) ── */
-/* We remove the centering margins so Streamlit can align User Right / AI Left */
+/* ── CHAT MESSAGES (FIXED WIDTH & ALIGNMENT) ── */
 [data-testid="stChatMessage"] {
   background: transparent !important;
   border: none !important;
   padding: 0.5rem 0 !important;
   max-width: 100% !important;
-  /* REMOVED: margin-left: auto; margin-right: auto; */
 }
 
-/* The Bubble Styling */
+/* The Bubble Styling - NOW LIMITED TO 50% WIDTH AND FITS CONTENT */
 [data-testid="stChatMessage"] > div:last-child {
   background: var(--bg-card) !important;
   border: 1px solid var(--sep) !important;
   border-radius: 15px !important;
-  padding: 1rem 1.2rem !important;
+  padding: 0.8rem 1.2rem !important;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
   color: var(--txt) !important;
   font-size: 0.95rem !important;
   line-height: 1.6 !important;
+  
+  /* NEW: Width constraints */
+  width: fit-content !important;
+  max-width: 50% !important; /* Half of the chat page */
+  display: table !important; /* Ensures it shrinks to fit text but wraps at max-width */
 }
 
 /* User Bubble Specifics (Right Aligned) */
@@ -227,6 +213,20 @@ html, body, [data-testid="stAppViewContainer"] {
   background: linear-gradient(135deg, #1a1c29, #252836) !important;
   border-color: rgba(108,99,255,0.3) !important;
   color: #fff !important;
+  margin-left: auto !important; /* Push to right */
+  margin-right: 0 !important;
+}
+
+/* Assistant Bubble Specifics (Left Aligned) */
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > div:last-child {
+  margin-right: auto !important; /* Push to left */
+  margin-left: 0 !important;
+}
+
+/* Ensure text inside bubbles is left-aligned */
+[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] { 
+  text-align: left !important; 
+  width: 100% !important; 
 }
 
 /* ── CHAT INPUT (GLOWING PILL) ── */
@@ -374,13 +374,7 @@ with st.sidebar:
 #  MAIN CHAT
 # ══════════════════════════════════════════════════════════════════════════════
 
-# Top Bar
-st.markdown("""
-<div class="topbar">
-  <span class="tb-cross">✝</span>
-  <span class="tb-title">Bishop A.A Mayungbo Ministry AI</span>
-</div>
-""", unsafe_allow_html=True)
+# [REMOVED] Top Bar with Cross and Title
 
 # Welcome Screen
 if not st.session_state.messages:
