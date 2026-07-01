@@ -185,13 +185,31 @@ html, body, [data-testid="stAppViewContainer"] {
 
 /* ── CHAT MESSAGES (FIXED WIDTH & ALIGNMENT) ── */
 [data-testid="stChatMessage"] {
-  background: transparent !important;
-  border: none !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 1rem !important;
   padding: 0.5rem 0 !important;
   max-width: 100% !important;
+  margin-bottom: 1rem !important;
 }
 
-/* The Bubble Styling - NOW LIMITED TO 50% WIDTH AND FITS CONTENT */
+/* User Message (Right Aligned, Icon on Right, Away from Edge) */
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+  flex-direction: row-reverse !important; /* Puts avatar on the right */
+  margin-left: auto !important; /* Pushes whole block to the right */
+  margin-right: 1.5rem !important; /* Keeps it away from the right edge */
+  max-width: 85% !important; /* Prevents it from stretching too far left */
+}
+
+/* Assistant Message (Left Aligned, Icon on Left, Away from Edge) */
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) {
+  flex-direction: row !important; /* Keeps avatar on the left */
+  margin-right: auto !important; /* Pushes whole block to the left */
+  margin-left: 1.5rem !important; /* Keeps it away from the left edge */
+  max-width: 85% !important; /* Prevents it from stretching too far right */
+}
+
+/* The Bubble Styling */
 [data-testid="stChatMessage"] > div:last-child {
   background: var(--bg-card) !important;
   border: 1px solid var(--sep) !important;
@@ -201,26 +219,15 @@ html, body, [data-testid="stAppViewContainer"] {
   color: var(--txt) !important;
   font-size: 0.95rem !important;
   line-height: 1.6 !important;
-  
-  /* NEW: Width constraints */
   width: fit-content !important;
-  max-width: 50% !important; /* Half of the chat page */
-  display: table !important; /* Ensures it shrinks to fit text but wraps at max-width */
+  max-width: 100% !important;
 }
 
-/* User Bubble Specifics (Right Aligned) */
+/* User Bubble Specifics */
 [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) > div:last-child {
   background: linear-gradient(135deg, #1a1c29, #252836) !important;
   border-color: rgba(108,99,255,0.3) !important;
   color: #fff !important;
-  margin-left: auto !important; /* Push to right */
-  margin-right: 0 !important;
-}
-
-/* Assistant Bubble Specifics (Left Aligned) */
-[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarAssistant"]) > div:last-child {
-  margin-right: auto !important; /* Push to left */
-  margin-left: 0 !important;
 }
 
 /* Ensure text inside bubbles is left-aligned */
@@ -358,25 +365,23 @@ with st.sidebar:
 
     st.divider()
 
-    with st.expander("🔒  Ministry Admin"):
-        pw = st.text_input("_pw", placeholder="Password…", type="password", label_visibility="collapsed")
-        if pw == "bishop2024":
-            st.success("Access granted.")
-            aq = st.text_input("_aq", placeholder="Member's question…", label_visibility="collapsed")
-            aa = st.text_area("_aa", placeholder="Bishop's answer…", label_visibility="collapsed")
-            if st.button("💾  Teach AI"):
-                if aq and aa:
-                    vectorstore.add_texts(texts=[f"Question: {aq}\nAnswer: {aa}"], metadatas=[{"source": "Admin Teach"}])
-                    st.success("Saved to memory.")
-        elif pw: st.error("Incorrect password.")
+    # ── NEW: CONTACT & WEBSITE BUTTONS ──
+    st.markdown("""
+    <div style="display: flex; gap: 10px; margin-top: 10px; margin-bottom: 20px;">
+        <a href="mailto:contact@bishopmayungbo.com" target="_blank" style="flex: 1; text-decoration: none;">
+            <div style="background: transparent; border: 1px solid rgba(232,192,106,0.3); color: #e8c06a; padding: 12px; border-radius: 10px; text-align: center; font-weight: 500; transition: all 0.2s;">📩 Contact Us</div>
+        </a>
+        <a href="https://bishopmayungbo.com" target="_blank" style="flex: 1; text-decoration: none;">
+            <div style="background: transparent; border: 1px solid rgba(232,192,106,0.3); color: #e8c06a; padding: 12px; border-radius: 10px; text-align: center; font-weight: 500; transition: all 0.2s;">🌐 Visit Website</div>
+        </a>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  MAIN CHAT
 # ══════════════════════════════════════════════════════════════════════════════
 
-# [REMOVED] Top Bar with Cross and Title
-
-# Welcome Screen
+# Welcome Screen (Disappears as soon as the first message is sent)
 if not st.session_state.messages:
     st.markdown("""
     <div class="welcome">
